@@ -1,25 +1,30 @@
-import logo from './logo.svg';
 import './App.css';
+import {Button, TextField, Typography} from "@mui/material";
+import API from "./API/APIInterface";
+import {Fragment, useEffect, useState} from "react";
+import AddUser from "./Components/AddUser";
+import Login from "./Components/Login";
+import Home from "./Components/Home";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [user, setUser] = useState(undefined);
+    const [newUser, setNewUser] = useState(false);
+
+    const logout = () => {
+        setUser(undefined);
+    }
+
+    const toggleNewUser = () => {
+        setNewUser(!newUser);
+    }
+
+    return (
+        <Fragment>
+            {
+                user ? <Home user={user} logout={logout} /> : newUser ? <AddUser setUser={setUser} toggleNewUser={toggleNewUser} /> : <Login setUser={setUser} toggleNewUser={toggleNewUser} />
+            }
+        </Fragment>
+    );
 }
 
 export default App;
