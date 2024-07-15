@@ -7,6 +7,7 @@ const AxiosConfigured = () => {
     //axios.defaults.headers.common['Access-Control-Allow-Headers'] = '*';
 
     // Set the baseURL for all requests to the API domain instead of the current domain
+    // 18.216.192.141
     axios.defaults.baseURL = `http://18.216.192.141:8000/`;
 
     // Allow the browser to send cookies to the API domain (which include auth_token)
@@ -20,10 +21,6 @@ const AxiosConfigured = () => {
 const axiosAgent = AxiosConfigured();
 
 export default class APIInterface {
-    async allUsers() {
-        return axiosAgent.get(`user/`);
-    }
-
     async registerUser(params) {
         return axiosAgent.post(`register/`, params);
     }
@@ -36,83 +33,143 @@ export default class APIInterface {
         return axiosAgent.post(`logout/`);
     }
 
-    async allFollows() {
-        return axiosAgent.get(`follow/`);
+    async allUsers() {
+        return axiosAgent.get(`users/`);
+    }
+
+    async user(username) {
+        return axiosAgent.get(`users/${username}/`)
+    }
+
+    async doesFollow(username, other_username) {
+        return axiosAgent.get(`users/${username}/follows/${other_username}`);
+    }
+
+    async follows(username) {
+        return axiosAgent.get(`users/${username}/follows/`);
     }
 
     async addFollow(params) {
-        return axiosAgent.post(`follow/`, params);
+        return axiosAgent.post(`users/follows/`, params);
+    }
+
+    async isFollower(username, other_username) {
+        return axiosAgent.get(`users/${username}/followers/${other_username}/`);
+    }
+
+    async followers(username) {
+        return axiosAgent.get(`users/${username}/followers/`);
     }
 
     async allPosts() {
-        return axiosAgent.get(`post/`);
+        return axiosAgent.get(`posts/`);
     }
 
     async addPost(params) {
-        return axiosAgent.post(`post/`, params);
+        return axiosAgent.post(`posts/`, params);
     }
 
-    async allComments() {
-        return axiosAgent.get(`comment/`);
+    async post(post_id) {
+        return axiosAgent.post(`posts/${post_id}/`);
     }
 
-    async addComment(params) {
-        return axiosAgent.post(`comment/`, params);
+    async postsForUser(username) {
+        return axiosAgent.post(`users/${username}/posts/`);
     }
 
-    async allReplies() {
-        return axiosAgent.get(`reply/`);
+    async commentsOnPost(post_id) {
+        return axiosAgent.post(`posts/${post_id}/comments/`);
     }
 
-    async addReply(params) {
-        return axiosAgent.post(`reply/`, params);
+    async addComment(post_id, params) {
+        return axiosAgent.post(`posts/${post_id}/comments/`, params);
     }
 
-    async allPostLikes() {
-        return axiosAgent.get(`post-like/`);
+    async repliesOnComment(comment_id) {
+        return axiosAgent.post(`comments/${comment_id}/replies`);
     }
 
-    async addPostLike(params) {
-        return axiosAgent.post(`post-like/`, params);
+    async addReply(comment_id, params) {
+        return axiosAgent.post(`comments/${comment_id}/replies`, params);
     }
 
-    async allCommentLikes() {
-        return axiosAgent.get(`comment-like/`);
+    async postLikes(post_id) {
+        return axiosAgent.get(`posts/${post_id}/likes/`);
     }
 
-    async addCommentLike(params) {
-        return axiosAgent.post(`comment-like/`, params);
+    async didLikePost(post_id, username) {
+        return axiosAgent.get(`posts/${post_id}/likes/${username}/`);
     }
 
-    async allReplyLikes() {
-        return axiosAgent.get(`reply-like/`);
+    async addPostLike(post_id, params) {
+        return axiosAgent.post(`posts/${post_id}/likes/`, params);
     }
 
-    async addReplyLike(params) {
-        return axiosAgent.post(`reply-like/`, params);
+    async commentLikes(comment_id) {
+        return axiosAgent.get(`comments/${comment_id}/likes/`);
     }
 
-    async allPostDislikes() {
-        return axiosAgent.get(`post-dislike/`);
+    async didLikeComment(comment_id, username) {
+        return axiosAgent.get(`comments/${comment_id}/likes/${username}/`);
     }
 
-    async addPostDislike(params) {
-        return axiosAgent.post(`post-dislike/`, params);
+    async addCommentLike(comment_id, params) {
+        return axiosAgent.post(`comments/${comment_id}/likes/`, params);
     }
 
-    async allCommentDislikes() {
-        return axiosAgent.get(`comment-dislike/`);
+    async replyLikes(reply_id) {
+        return axiosAgent.get(`replies/${reply_id}/likes/`);
     }
 
-    async addCommentDislike(params) {
-        return axiosAgent.post(`comment-dislike/`, params);
+    async didLikeReply(reply_id, username) {
+        return axiosAgent.get(`replies/${reply_id}/likes/${username}/`);
     }
 
-    async allReplyDislikes() {
-        return axiosAgent.get(`reply-dislike/`);
+    async addReplyLike(reply_id, params) {
+        return axiosAgent.post(`replies/${reply_id}/likes/`, params);
     }
 
-    async addReplyDislike(params) {
-        return axiosAgent.post(`reply-dislike/`, params);
+    async postDislikes(post_id) {
+        return axiosAgent.get(`posts/${post_id}/dislikes/`);
+    }
+
+    async didDislikePost(post_id, username) {
+        return axiosAgent.get(`posts/${post_id}/dislikes/${username}/`);
+    }
+
+    async addPostDislike(post_id, params) {
+        return axiosAgent.post(`posts/${post_id}/dislikes/`, params);
+    }
+
+    async commentDislikes(comment_id) {
+        return axiosAgent.get(`comments/${comment_id}/dislikes/`);
+    }
+
+    async didDislikeComment(comment_id, username) {
+        return axiosAgent.get(`comments/${comment_id}/dislikes/${username}/`);
+    }
+
+    async addCommentDislike(comment_id, params) {
+        return axiosAgent.post(`comments/${comment_id}/dislikes/`, params);
+    }
+
+    async replyDislikes(reply_id) {
+        return axiosAgent.get(`replies/${reply_id}/dislikes/`);
+    }
+
+    async didDislikeReply(reply_id, username) {
+        return axiosAgent.get(`replies/${reply_id}/dislikes/${username}/`);
+    }
+
+    async addReplyDislike(reply_id, params) {
+        return axiosAgent.post(`replies/${reply_id}/dislikes/`, params);
+    }
+
+    async searchForUser(search_term) {
+        return axiosAgent.get(`search/users/${search_term}/`);
+    }
+
+    async searchForPost(search_term) {
+        return axiosAgent.get(`search/posts/${search_term}/`);
     }
 }

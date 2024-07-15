@@ -1,12 +1,15 @@
-import API from "../API/APIInterface";
 import {Fragment, useEffect, useState} from "react";
 import {Box, Button, TextField, Typography} from "@mui/material";
+
+import API from "../API/APIInterface";
 
 function AddUser( { setUser, toggleNewUser } ) {
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [bio, setBio] = useState("");
+    const [usernameMessage, setUsernameMessage] = useState("")
+    const [usernameMessageColor, setUsernameMessageColor] = useState('green')
 
     const handleEmailChange = event => {
         setEmail(event.target.value);
@@ -77,10 +80,24 @@ function AddUser( { setUser, toggleNewUser } ) {
         async function fetchData() {
 
             try {
-                const api = new API();
+                if (username.length > 0) {
+                    const api = new API();
 
-                const usersResponse = await api.allUsers();
-                console.log(usersResponse.data)
+                    const userResponse = await api.user(username);
+                    console.log(userResponse.data)
+
+                    if (userResponse.data[0]) {
+                        setUsernameMessage("Username is already in use :(");
+                        setUsernameMessageColor("red");
+                    }
+                    else {
+                        setUsernameMessage("Username is available :)");
+                        setUsernameMessageColor("green");
+                    }
+                }
+                else {
+                    setUsernameMessage("")
+                }
 
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -100,18 +117,18 @@ function AddUser( { setUser, toggleNewUser } ) {
                 alignItems: "center",
                 margin: "auto"
             }}>
-                <Typography variant="h2" fontWeight='fontWeightBold' sx={{
+                <Typography variant="h3" fontWeight='fontWeightBold' sx={{
                     mt: 9.3
                 }}>
                     <div style={{userSelect: "none"}}>Simple Social</div>
                 </Typography>
-                <Typography variant="h5">
+                <Typography variant="h6">
                     <div style={{userSelect: "none"}}>Welcome to Simple Social!</div>
                 </Typography>
                 <Typography variant="body" sx={{
-                    mt: 5
+                    mt: usernameMessage.count > 0 ? 2 : 5
                 }}>
-                    <div style={{userSelect: "none"}}>{username.length > 0 ? "Username Available!" : ""}</div>
+                    <div style={{userSelect: "none", color: usernameMessageColor}}>{usernameMessage}</div>
                 </Typography>
                 <TextField
                     id="username-field-2"

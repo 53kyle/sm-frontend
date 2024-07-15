@@ -1,6 +1,7 @@
-import API from "../API/APIInterface";
 import {Fragment, useEffect, useState} from "react";
 import {Box, Button, TextField, Typography} from "@mui/material";
+
+import API from "../API/APIInterface";
 
 function Login( { setUser, toggleNewUser } ) {
     const [username, setUsername] = useState("");
@@ -47,12 +48,12 @@ function Login( { setUser, toggleNewUser } ) {
                 alignItems: "center",
                 margin: "auto"
             }}>
-                <Typography variant="h2" fontWeight='fontWeightBold' sx={{
+                <Typography variant="h3" fontWeight='fontWeightBold' sx={{
                     mt: 9.3
                 }}>
                     <div style={{userSelect: "none"}}>Simple Social</div>
                 </Typography>
-                <Typography variant="h5">
+                <Typography variant="h6">
                     <div style={{userSelect: "none"}}>Welcome to Simple Social!</div>
                 </Typography>
                 <TextField
