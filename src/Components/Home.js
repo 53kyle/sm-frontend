@@ -44,6 +44,7 @@ function Home( { user, logout, filter, filterType, setFilter, setFilterType, fil
     const [posts, setPosts] = useState(undefined);
     const [replyTo, setReplyTo] = useState(undefined);
     const [parentPost, setParentPost] = useState(undefined);
+    const [followingOnly, setFollowingOnly] = useState("all");
 
     const handleOpenAddPost = () => {
         setAddPostOpen(true);
@@ -84,10 +85,18 @@ function Home( { user, logout, filter, filterType, setFilter, setFilterType, fil
                 const api = new API();
 
                 if (filterType == "none") {
-                    setParentPost(undefined);
-                    const postsResponse = await api.allPosts();
+                    if (followingOnly === "following") {
+                        setParentPost(undefined);
+                        const postsResponse = await api.followingPosts(user['username']);
 
-                    setPosts(postsResponse.data.toReversed())
+                        setPosts(postsResponse.data.toReversed())
+                    }
+                    else if (followingOnly === "all") {
+                        setParentPost(undefined);
+                        const postsResponse = await api.allPosts();
+
+                        setPosts(postsResponse.data.toReversed())
+                    }
                 }
                 else if (filterType == "user") {
                     setParentPost(undefined);
@@ -96,11 +105,11 @@ function Home( { user, logout, filter, filterType, setFilter, setFilterType, fil
                     setPosts(postsResponse.data.toReversed())
                 }
                 else if (filterType == "replies") {
-                    getParentPost().then(async (value) => {
-                        const postsResponse = await api.repliesToPost(filter);
+                    await getParentPost();
 
-                        setPosts(postsResponse.data.toReversed())
-                    });
+                    const postsResponse = await api.repliesToPost(filter);
+
+                    setPosts(postsResponse.data.toReversed())
                 }
                 else {
                     return;
@@ -114,7 +123,7 @@ function Home( { user, logout, filter, filterType, setFilter, setFilterType, fil
         fetchPosts().then((value) => {
             setCanRefresh(true);
         });
-    }, [refresh, addPostOpen, filterType, filter]);
+    }, [refresh, addPostOpen, filterType, filter, followingOnly]);
 
     useEffect(() => {
         if (replyTo) {
@@ -142,7 +151,7 @@ function Home( { user, logout, filter, filterType, setFilter, setFilterType, fil
                 </Box>
             </Modal>
             {
-                canRefresh ? <PostList topLevelRefresh={refresh} parentPost={parentPost} posts={posts} setReplyTo={setReplyTo} user={user} filter={filter} filterType={filterType} setFilter={setFilter} setFilterType={setFilterType} handlePushFilterHistory={handlePushFilterHistory} />
+                canRefresh ? <PostList topLevelRefresh={refresh} parentPost={parentPost} posts={posts} setReplyTo={setReplyTo} user={user} filter={filter} filterType={filterType} setFilter={setFilter} setFilterType={setFilterType} handlePushFilterHistory={handlePushFilterHistory} followingOnly={followingOnly} setFollowingOnly={setFollowingOnly} />
                     : <CircularProgress color="inherit" sx={{
                         mt: 12
                     }}/>

@@ -3,8 +3,9 @@ import Post from "./Post";
 import {Box, Typography} from "@mui/material";
 import Divider from "@mui/material/Divider";
 import UserProfile from "./UserProfile";
+import FeedHeader from "./FeedHeader";
 
-function PostList( { posts, parentPost, topLevelRefresh, setReplyTo, user, filter, filterType, setFilter, setFilterType, handlePushFilterHistory } ) {
+function PostList( { posts, parentPost, topLevelRefresh, setReplyTo, user, filter, filterType, setFilter, setFilterType, handlePushFilterHistory, followingOnly, setFollowingOnly } ) {
     return (
         <Fragment>
             <Box
@@ -20,8 +21,12 @@ function PostList( { posts, parentPost, topLevelRefresh, setReplyTo, user, filte
                 }}
             >
                 {
+                    filterType == "none" &&
+                    <FeedHeader followingOnly={followingOnly} setFollowingOnly={setFollowingOnly} />
+                }
+                {
                     filterType == "user" &&
-                    <UserProfile username={filter} />
+                    <UserProfile user={user} username={filter} />
                 }
                 {
                     parentPost &&

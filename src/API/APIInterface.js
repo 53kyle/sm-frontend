@@ -45,8 +45,8 @@ export default class APIInterface {
         return axiosAgent.get(`users/${username}/follows/`);
     }
 
-    async addFollow(params) {
-        return axiosAgent.post(`users/follows/`, params);
+    async addFollow(username, params) {
+        return axiosAgent.post(`users/${username}/follows/`, params);
     }
 
     async isFollower(username, other_username) {
@@ -59,6 +59,10 @@ export default class APIInterface {
 
     async allPosts() {
         return axiosAgent.get(`posts/`);
+    }
+
+    async followingPosts(username) {
+        return axiosAgent.get(`posts/following/${username}`);
     }
 
     async addPost(params) {

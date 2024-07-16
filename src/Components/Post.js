@@ -226,7 +226,7 @@ function Post( { post, topLevelRefresh, setReplyTo, user, setFilter, setFilterTy
                 setFilter(post['post_id']);
                 setFilterType("replies")
             }} >
-                <Typography variant="body1" sx={{
+                <Typography variant="body1" textAlign="start" sx={{
                     ml: 2,
                     mr: 2
                 }} >
