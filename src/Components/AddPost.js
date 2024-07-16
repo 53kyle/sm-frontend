@@ -39,10 +39,7 @@ function AddPost( {user, handleCloseAddPost, replyTo} ) {
                     "reply_to": null
                 };
 
-                console.log(params);
-
                 const addPostResponse = await api.addPost(params);
-                console.log(addPostResponse.data);
 
             } catch (error) {
                 console.error("Error adding post:", error);
@@ -66,7 +63,7 @@ function AddPost( {user, handleCloseAddPost, replyTo} ) {
                 mb: 3
             }}>
                 {
-                    replyTo ? `Reply to ${replyTo['username']}` : "New Post"
+                    replyTo ? `Reply` : "New Post"
                 }
             </Typography>
             {

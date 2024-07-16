@@ -1,6 +1,6 @@
 import {Fragment, useEffect, useState} from "react";
 import {Box, Fab, Modal, Typography, CircularProgress} from "@mui/material";
-import {AddCircle, Refresh} from "@mui/icons-material";
+import {AddCircle, Refresh, ArrowBackIosNew} from "@mui/icons-material";
 
 import AddPost from "./AddPost";
 import PostList from "./PostList";
@@ -19,6 +19,12 @@ const modalStyle = {
     borderRadius: 5
 };
 
+const goBackFabStyle = {
+    position: 'absolute',
+    top: 84,
+    left: 16,
+};
+
 const newPostFabStyle = {
     position: 'absolute',
     top: 84,
@@ -31,7 +37,7 @@ const refreshFabStyle = {
     right: 16,
 };
 
-function Home( { user, logout, filter, filterType, setFilter, setFilterType } ) {
+function Home( { user, logout, filter, filterType, setFilter, setFilterType, filterHistory, handlePushFilterHistory, handlePopFilterHistory } ) {
     const [addPostOpen, setAddPostOpen] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const [canRefresh, setCanRefresh] = useState(true);
@@ -135,7 +141,18 @@ function Home( { user, logout, filter, filterType, setFilter, setFilterType } ) 
                     <AddPost user={user} replyTo={replyTo} handleCloseAddPost={handleCloseAddPost} />
                 </Box>
             </Modal>
-            <PostList topLevelRefresh={refresh} parentPost={parentPost} posts={posts} setReplyTo={setReplyTo} user={user} filter={filter} filterType={filterType} setFilter={setFilter} setFilterType={setFilterType} />
+            {
+                canRefresh ? <PostList topLevelRefresh={refresh} parentPost={parentPost} posts={posts} setReplyTo={setReplyTo} user={user} filter={filter} filterType={filterType} setFilter={setFilter} setFilterType={setFilterType} handlePushFilterHistory={handlePushFilterHistory} />
+                    : <CircularProgress color="inherit" sx={{
+                        mt: 12
+                    }}/>
+            }
+            {
+                filterHistory.length > 0 &&
+                <Fab size="medium" color="primary" onClick={handlePopFilterHistory} sx={goBackFabStyle} >
+                    <ArrowBackIosNew />
+                </Fab>
+            }
             <Fab variant="extended" color="primary" onClick={handleOpenAddPost} sx={newPostFabStyle} >
                 <AddCircle sx={{ mr: 1 }} />
                 New Post

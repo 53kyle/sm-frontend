@@ -4,7 +4,7 @@ import {Box, Typography} from "@mui/material";
 import Divider from "@mui/material/Divider";
 import UserProfile from "./UserProfile";
 
-function PostList( { posts, parentPost, topLevelRefresh, setReplyTo, user, filter, filterType, setFilter, setFilterType } ) {
+function PostList( { posts, parentPost, topLevelRefresh, setReplyTo, user, filter, filterType, setFilter, setFilterType, handlePushFilterHistory } ) {
     return (
         <Fragment>
             <Box
@@ -13,7 +13,7 @@ function PostList( { posts, parentPost, topLevelRefresh, setReplyTo, user, filte
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "start",
-                    width: "flex",
+                    width: "100%",
                     mt: 12,
                     mr: 2,
                     ml: 2
@@ -26,7 +26,7 @@ function PostList( { posts, parentPost, topLevelRefresh, setReplyTo, user, filte
                 {
                     parentPost &&
                     <Fragment>
-                        <Post post={parentPost} user={user} topLevelRefresh={topLevelRefresh} setReplyTo={setReplyTo} setFilter={setFilter} setFilterType={setFilterType} key={0}/>
+                        <Post post={parentPost} user={user} topLevelRefresh={topLevelRefresh} setReplyTo={setReplyTo} setFilter={setFilter} setFilterType={setFilterType} handlePushFilterHistory={handlePushFilterHistory} key={0}/>
                         <Divider sx={{
                             width: "100%",
                             mb: 3
@@ -36,7 +36,7 @@ function PostList( { posts, parentPost, topLevelRefresh, setReplyTo, user, filte
                 {
                     posts &&
                     posts.map((post, index) => (
-                        <Post post={post} user={user} topLevelRefresh={topLevelRefresh} setReplyTo={setReplyTo} setFilter={setFilter} setFilterType={setFilterType} key={ index + 1 }/>
+                        <Post post={post} user={user} topLevelRefresh={topLevelRefresh} setReplyTo={setReplyTo} setFilter={setFilter} setFilterType={setFilterType} handlePushFilterHistory={handlePushFilterHistory} key={ index + 1 }/>
                     ))
                 }
             </Box>

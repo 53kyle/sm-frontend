@@ -15,9 +15,12 @@ import SearchIcon from "@mui/icons-material/Search";
 import LogoutIcon from "@mui/icons-material/Logout";
 import {alpha, styled} from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
-import {Fragment, useState} from "react";
+import {Fragment, useEffect, useState} from "react";
+import ButtonBase from '@mui/material/ButtonBase';
 
 import Home from "./Home";
+import {Autocomplete, CircularProgress, Popover, TextField} from "@mui/material";
+import API from "../API/APIInterface";
 
 const drawerWidth = 240;
 const navItems = ['Home', 'About', 'Contact'];
@@ -68,6 +71,12 @@ function DrawerAppBar( {window, user, logout} ) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [filter, setFilter] = useState(undefined);
     const [filterType, setFilterType] = useState("none");
+    const [filterHistory, setFilterHistory] = useState([]);
+    const [filterTypeHistory, setFilterTypeHistory] = useState([]);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [searchOptions, setSearchOptions] = useState([]);
+    const [userSearchTerm, setUserSearchTerm] = useState("");
+    const loadingSearch = searchOptions && searchOptions.length === 0 && userSearchTerm !== "";
 
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
@@ -76,7 +85,62 @@ function DrawerAppBar( {window, user, logout} ) {
     const handleClickLogo = () => {
         setFilter(undefined);
         setFilterType("none");
+        setFilterHistory([]);
+        setFilterTypeHistory([])
     }
+
+    const handlePushFilterHistory = () => {
+        const filterHistoryClone = filterHistory.slice();
+        const filterTypeHistoryClone = filterTypeHistory.slice();
+
+        filterHistoryClone.push(filter);
+        filterTypeHistoryClone.push(filterType);
+
+        console.log("filter history", filterHistoryClone)
+        console.log("filter type history", filterTypeHistoryClone)
+
+        setFilterHistory(filterHistoryClone);
+        setFilterTypeHistory(filterTypeHistoryClone);
+    }
+
+    const handlePopFilterHistory = () => {
+        const filterHistoryClone = filterHistory.slice();
+        const filterTypeHistoryClone = filterTypeHistory.slice();
+
+        setFilter(filterHistoryClone.pop());
+        setFilterType(filterTypeHistoryClone.pop());
+
+        setFilterHistory(filterHistoryClone);
+        setFilterTypeHistory(filterTypeHistoryClone);
+    }
+
+    useEffect(() => {
+        async function fetchUsers() {
+            if (userSearchTerm == "") {
+                setSearchOptions([]);
+                return;
+            }
+
+            try {
+                const api = new API();
+
+                const usersResponse = await api.searchForUser(userSearchTerm);
+
+                setSearchOptions(usersResponse.data)
+
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        fetchUsers()
+    }, [userSearchTerm]);
+
+    useEffect(() => {
+        if (!searchOpen) {
+            setSearchOptions([]);
+        }
+    }, [searchOpen]);
 
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
@@ -103,24 +167,73 @@ function DrawerAppBar( {window, user, logout} ) {
             <CssBaseline />
             <AppBar component="nav">
                 <Toolbar>
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="div"
-                        sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
-                        onClick={handleClickLogo}
-                    >
-                        Simple Social
-                    </Typography>
-                    <Search>
-                        <SearchIconWrapper>
-                            <SearchIcon />
-                        </SearchIconWrapper>
-                        <StyledInputBase
-                            placeholder="Search…"
-                            inputProps={{ 'aria-label': 'search' }}
-                        />
-                    </Search>
+                    <Box sx={{
+                        display: { xs: 'none', sm: 'block' },
+                        flexGrow: 1,
+                        flexDirection: "column",
+                        alignItems: "start",
+                        justifyContent: "center",
+                    }}>
+                        <ButtonBase disableRipple onClick={handleClickLogo}>
+                            <Typography
+                                variant="h6"
+                                noWrap
+                                component="div"
+                            >
+                                Simple Social
+                            </Typography>
+                        </ButtonBase>
+                    </Box>
+                    <Autocomplete
+                        id="search-autocomplete"
+                        sx={{ width: 300 }}
+                        open={searchOpen}
+                        onOpen={() => {
+                            setSearchOpen(true);
+                        }}
+                        onClose={() => {
+                            setSearchOpen(false);
+                        }}
+                        isOptionEqualToValue={(option, value) => option.username === value.username}
+                        getOptionLabel={(option) => option.username}
+                        options={searchOptions}
+                        loading={loadingSearch}
+                        filterOptions={(x) => x}
+                        onInputChange={(event, newInputValue) => {
+                            setUserSearchTerm(newInputValue.replace(/\s+/g, ''));
+                        }}
+                        onChange={(event, newValue) => {
+                            if (newValue) {
+                                handlePushFilterHistory();
+                                setFilter(newValue['username']);
+                                setFilterType("user")
+                            }
+                        }}
+                        noOptionsText="No Users Found"
+                        renderInput={(params) => (
+                            <Search>
+                                <SearchIconWrapper>
+                                    <SearchIcon/>
+                                </SearchIconWrapper>
+                                <div ref={params.InputProps.ref}>
+                                    <StyledInputBase
+                                        {...params}
+                                        label="Search Users"
+                                        InputProps={{
+                                            ...params.InputProps,
+                                            endAdornment: (
+                                                <Fragment>
+                                                    {loadingSearch ?
+                                                        <CircularProgress color="inherit" size={20}/> : null}
+                                                    {params.InputProps.endAdornment}
+                                                </Fragment>
+                                            ),
+                                        }}
+                                    />
+                                </div>
+                            </Search>
+                        )}
+                    />
                     <Button variant="contained" startIcon={<LogoutIcon />} onClick={logout} sx={{ ml: 2 }} >
                         Log Out
                     </Button>
@@ -149,7 +262,7 @@ function DrawerAppBar( {window, user, logout} ) {
                 justifyContent: "center",
                 width: "100%" }}>
                 <Toolbar />
-                <Home user={user} logout={logout} filter={filter} filterType={filterType} setFilter={setFilter} setFilterType={setFilterType} />
+                <Home user={user} logout={logout} filter={filter} filterType={filterType} setFilter={setFilter} setFilterType={setFilterType} filterHistory={filterHistory} handlePushFilterHistory={handlePushFilterHistory} handlePopFilterHistory={handlePopFilterHistory} />
             </Box>
         </Box>
     );

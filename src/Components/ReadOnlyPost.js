@@ -18,22 +18,46 @@ function ReadOnlyPost( { post } ) {
         "rgba(252, 247, 222, 1)",
         "rgba(222, 253, 222, 1.0)",
         "rgba(222, 243, 253, 1.0)",
-        "rgba(255, 240, 253, 1.0)"
+        "rgba(255, 240, 253, 1.0)",
+        "rgba(255, 179, 186, 1.0)",
+        "rgba(255, 223, 186, 1.0)",
+        "rgba(255, 255, 186, 1.0)",
+        "rgba(186, 255, 201, 1.0)",
+        "rgba(186, 255, 255, 1.0)",
+        "rgba(168, 230, 207, 1.0)",
+        "rgba(220, 237, 193, 1.0)",
+        "rgba(255, 211, 182, 1.0)",
+        "rgba(255, 170, 165, 1.0)",
+        "rgba(255, 139, 148, 1.0)",
+        "rgba(255, 312, 229, 1.0)",
+        "rgba(212, 255, 234, 1.0)",
+        "rgba(238, 203, 255, 1.0)",
+        "rgba(254, 255, 163, 1.0)",
+        "rgba(219, 220, 255, 1.0)",
     ]
 
     useEffect(() => {
-        setBackgroundColor(pastels[Math.floor(Math.random() * pastels.length)])
+        let username = post['username']
+        let hash = 0;
+        for (let i = 0, len = username.length; i < len; i++) {
+            let chr = username.charCodeAt(i);
+            hash = (hash << 5) - hash + chr;
+            hash |= 0; // Convert to 32bit integer
+        }
+        setBackgroundColor(pastels[Math.abs(hash) % 20]);
 
         if (!post['reply_to']) {
+            setParentPost(undefined)
             return;
         }
+
         async function getParentPost() {
             try {
                 const api = new API();
 
                 const postResponse = await api.post(post['reply_to']);
 
-                setParentPost(postResponse.data)
+                setParentPost(postResponse.data[0])
 
             } catch (error) {
                 console.error("Error getting parent post:", error);
@@ -60,52 +84,44 @@ function ReadOnlyPost( { post } ) {
         >
             <Box sx={{
                 display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
+                flexDirection: "column",
+                alignItems: "start",
                 justifyContent: "start",
                 width: "100%"
             }}>
-                <Box sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "start",
-                    width: "50%"
-                }}>
-                    <Typography variant="h6" sx={{
-                        mt: 2,
-                        ml: 2,
-                        mr: 2
-                    }}>
-                        {post['username']}
-                    </Typography>
-                </Box>
                 {
-                    parentPost &&
+                    post['reply_to'] && parentPost &&
                     <Box sx={{
                         display: "flex",
                         flexDirection: "row",
                         alignItems: "center",
                         justifyContent: "end",
-                        width: "50%"
+                        width: "100%"
                     }}>
-                        <ReplyIcon sx={{
-                            color: 'gray',
+                        <ReplyIcon fontSize="small" sx={{
+                            color: "rgba(0, 0, 0, 0.5)",
                             mr: -1.5,
-                            mb: -1
+                            mt: 1.5
                         }}/>
-                        <Typography variant="h6" sx={{
+                        <Typography variant="body" sx={{
                             mt: 2,
                             ml: 2,
                             mr: 2,
-                            color: 'gray'
-                        }}>
+                            color: "rgba(0, 0, 0, 0.5)"
+                        }} >
                             {
-                                parentPost[0]['username']
+                                parentPost['username']
                             }
                         </Typography>
                     </Box>
                 }
+                <Typography variant="h6" sx={{
+                    mt: post['reply_to'] ? 0 : 2,
+                    ml: 2,
+                    mr: 2
+                }} >
+                    {post['username']}
+                </Typography>
             </Box>
             <Typography variant="body" sx={{
                 ml: 2,

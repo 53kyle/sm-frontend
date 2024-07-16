@@ -33,12 +33,12 @@ function UserProfile({ username }) {
             <Typography variant="h4" sx={{
                 ml: 2,
                 mr: 2,
-                mb: user ? 0 : 3
+                mb: user && user['bio'] != 'null' ? 0 : 3
             }}>
                 {username}
             </Typography>
             {
-                user &&
+                user && user['bio'] != 'null' &&
                 <Fragment>
                     <Typography variant="body" sx={{
                         ml: 2,
