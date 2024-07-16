@@ -31,16 +31,19 @@ const refreshFabStyle = {
     right: 16,
 };
 
-function Home( { user, logout } ) {
+function Home( { user, logout, filter, filterType, setFilter, setFilterType } ) {
     const [addPostOpen, setAddPostOpen] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const [canRefresh, setCanRefresh] = useState(true);
     const [posts, setPosts] = useState(undefined);
+    const [replyTo, setReplyTo] = useState(undefined);
+    const [parentPost, setParentPost] = useState(undefined);
 
     const handleOpenAddPost = () => {
         setAddPostOpen(true);
     }
     const handleCloseAddPost = () => {
+        setReplyTo(undefined);
         setAddPostOpen(false);
     }
 
@@ -56,13 +59,46 @@ function Home( { user, logout } ) {
         }
 
         setCanRefresh(false);
+
+        async function getParentPost() {
+            try {
+                const api = new API();
+
+                const postResponse = await api.post(filter);
+
+                setParentPost(postResponse.data[0])
+
+            } catch (error) {
+                console.error("Error getting parent post:", error);
+            }
+        }
+
         async function fetchPosts() {
             try {
                 const api = new API();
 
-                const postsResponse = await api.allPosts();
-                console.log(postsResponse.data)
-                setPosts(postsResponse.data.toReversed())
+                if (filterType == "none") {
+                    setParentPost(undefined);
+                    const postsResponse = await api.allPosts();
+
+                    setPosts(postsResponse.data.toReversed())
+                }
+                else if (filterType == "user") {
+                    setParentPost(undefined);
+                    const postsResponse = await api.postsForUser(filter);
+
+                    setPosts(postsResponse.data.toReversed())
+                }
+                else if (filterType == "replies") {
+                    getParentPost().then(async (value) => {
+                        const postsResponse = await api.repliesToPost(filter);
+
+                        setPosts(postsResponse.data.toReversed())
+                    });
+                }
+                else {
+                    return;
+                }
 
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -72,7 +108,13 @@ function Home( { user, logout } ) {
         fetchPosts().then((value) => {
             setCanRefresh(true);
         });
-    }, [refresh, addPostOpen]);
+    }, [refresh, addPostOpen, filterType, filter]);
+
+    useEffect(() => {
+        if (replyTo) {
+            setAddPostOpen(true);
+        }
+    }, [replyTo]);
 
     return (
         <Box sx={{
@@ -90,10 +132,10 @@ function Home( { user, logout } ) {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={modalStyle}>
-                    <AddPost user={user} handleCloseAddPost={handleCloseAddPost} />
+                    <AddPost user={user} replyTo={replyTo} handleCloseAddPost={handleCloseAddPost} />
                 </Box>
             </Modal>
-            <PostList topLevelRefresh={refresh} posts={posts} user={user} />
+            <PostList topLevelRefresh={refresh} parentPost={parentPost} posts={posts} setReplyTo={setReplyTo} user={user} filter={filter} filterType={filterType} setFilter={setFilter} setFilterType={setFilterType} />
             <Fab variant="extended" color="primary" onClick={handleOpenAddPost} sx={newPostFabStyle} >
                 <AddCircle sx={{ mr: 1 }} />
                 New Post

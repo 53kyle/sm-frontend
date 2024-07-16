@@ -26,7 +26,6 @@ function Login( { setUser, toggleNewUser } ) {
                 };
 
                 const loginResponse = await api.login(params);
-                console.log(loginResponse.data);
 
                 setUser(loginResponse.data);
 

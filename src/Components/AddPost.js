@@ -4,8 +4,9 @@ import Button from "@mui/material/Button";
 
 import API from "../API/APIInterface";
 import DateHelper from "../Utils/DateHelper";
+import ReadOnlyPost from "./ReadOnlyPost";
 
-function AddPost( {user, handleCloseAddPost} ) {
+function AddPost( {user, handleCloseAddPost, replyTo} ) {
     const [post, setPost] = useState("");
     const [canPost, setCanPost] = useState(false);
 
@@ -25,12 +26,17 @@ function AddPost( {user, handleCloseAddPost} ) {
                 const api = new API();
                 const UUID = crypto.randomUUID();
                 const currentDate = new Date();
-                const currentTimestamp = DateHelper.dateToMySQLDateTime(currentDate)
-                console.log(user['username'])
-                const params = {
+
+                const params = replyTo ? {
                     "post_id": UUID,
                     "username": user['username'],
-                    "content": post
+                    "content": post,
+                    "reply_to": replyTo['post_id']
+                } : {
+                    "post_id": UUID,
+                    "username": user['username'],
+                    "content": post,
+                    "reply_to": null
                 };
 
                 console.log(params);
@@ -56,13 +62,21 @@ function AddPost( {user, handleCloseAddPost} ) {
             justifyContent: "center",
             m: 1
         }}>
-            <Typography variant="h4">
-                New Post
+            <Typography variant="h4" sx={{
+                mb: 3
+            }}>
+                {
+                    replyTo ? `Reply to ${replyTo['username']}` : "New Post"
+                }
             </Typography>
+            {
+                replyTo &&
+                <ReadOnlyPost user={user} post={replyTo} />
+            }
             <TextField
                 id="post-field"
                 multiline
-                label="Post"
+                label={replyTo ? "Reply" : "Post"}
                 placeholder=""
                 value={post}
                 helperText=""

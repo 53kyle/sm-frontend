@@ -5,17 +5,18 @@ import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
 import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
-import CommentIcon from '@mui/icons-material/Comment';
+import ReplyIcon from '@mui/icons-material/Reply';
 import Divider from "@mui/material/Divider";
 import API from "../API/APIInterface";
 
-function Post( { post, topLevelRefresh, user } ) {
+function Post( { post, topLevelRefresh, setReplyTo, user, setFilter, setFilterType } ) {
     const [liked, setLiked] = useState(false);
     const [numLiked, setNumLiked] = useState(0);
     const [disliked, setDisliked] = useState(false);
     const [numDisliked, setNumDisliked] = useState(0);
     const [refresh, setRefresh] = useState(false);
     const [backgroundColor, setBackgroundColor] = useState("rgba(255, 255, 255, 1.0)");
+    const [parentPost, setParentPost] = useState(undefined);
 
     const pastels = [
         "rgba(253, 223, 223, 1.0)",
@@ -56,6 +57,26 @@ function Post( { post, topLevelRefresh, user } ) {
 
     useEffect(() => {
         setBackgroundColor(pastels[Math.floor(Math.random() * pastels.length)])
+
+        if (!post['reply_to']) {
+            setParentPost(undefined)
+            return;
+        }
+
+        async function getParentPost() {
+            try {
+                const api = new API();
+
+                const postResponse = await api.post(post['reply_to']);
+
+                setParentPost(postResponse.data[0])
+
+            } catch (error) {
+                console.error("Error getting parent post:", error);
+            }
+        }
+
+        getParentPost()
     }, [post]);
 
     const handleClickLike = () => {
@@ -102,6 +123,10 @@ function Post( { post, topLevelRefresh, user } ) {
         });
     }
 
+    const handleClickReply = () => {
+        setReplyTo(post);
+    }
+
     return (
         <Box
             sx={{
@@ -119,17 +144,70 @@ function Post( { post, topLevelRefresh, user } ) {
                 mb: 3
             }}
         >
-            <Typography variant="h6" sx={{
-                mt: 2,
-                ml: 2,
-                mr: 2
+            <Box sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "start",
+                width: "100%"
             }}>
-                {post['username']}
-            </Typography>
+                <Box sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "start",
+                    width: "50%"
+                }}>
+                    <Typography variant="h6" sx={{
+                        mt: 2,
+                        ml: 2,
+                        mr: 2
+                    }} onClick={() => {
+                        setFilter(post['username']);
+                        setFilterType("user")
+                    }} >
+                        {post['username']}
+                    </Typography>
+                </Box>
+                {
+                    post['reply_to'] && parentPost &&
+                    <Box sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "end",
+                        width: "50%"
+                    }}>
+                        <ReplyIcon sx={{
+                            color: 'gray',
+                            mr: -1.5,
+                            mb: -1
+                        }}/>
+                        <Typography variant="h6" sx={{
+                            mt: 2,
+                            ml: 2,
+                            mr: 2,
+                            color: 'gray'
+                        }} onClick={() => {
+                            setFilter(post['reply_to']);
+                            setFilterType("replies")
+                        }} >
+                            {
+                                parentPost['username']
+                            }
+                        </Typography>
+                    </Box>
+                }
+            </Box>
+
+
             <Typography variant="body" sx={{
                 ml: 2,
                 mr: 2
-            }}>
+            }} onClick={() => {
+                setFilter(post['post_id']);
+                setFilterType("replies")
+            }} >
                 {post['content']}
             </Typography>
             <Typography variant="caption" sx={{
@@ -170,7 +248,9 @@ function Post( { post, topLevelRefresh, user } ) {
                     }}>
                         {numLiked - numDisliked}
                     </Typography>
-                    <IconButton aria-label="dislike" size="small" onClick={handleClickDislike}>
+                    <IconButton aria-label="dislike" size="small" onClick={handleClickDislike} sx={{
+                        mr: 2
+                    }}>
                         {
                             disliked ? <ThumbDownAltIcon fontSize="small" /> : <ThumbDownOffAltIcon fontSize="small" />
                         }
@@ -184,8 +264,10 @@ function Post( { post, topLevelRefresh, user } ) {
                     width: "50%",
                     mr: 2
                 }}>
-                    <IconButton aria-label="comments" size="small">
-                        <CommentIcon fontSize="small" />
+                    <IconButton aria-label="reply" size="small" onClick={handleClickReply} sx={{
+                        ml: 2
+                    }}>
+                        <ReplyIcon fontSize="small" />
                     </IconButton>
                 </Box>
             </Box>

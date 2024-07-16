@@ -66,10 +66,17 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 function DrawerAppBar( {window, user, logout} ) {
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [filter, setFilter] = useState(undefined);
+    const [filterType, setFilterType] = useState("none");
 
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
     };
+
+    const handleClickLogo = () => {
+        setFilter(undefined);
+        setFilterType("none");
+    }
 
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
@@ -101,6 +108,7 @@ function DrawerAppBar( {window, user, logout} ) {
                         noWrap
                         component="div"
                         sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+                        onClick={handleClickLogo}
                     >
                         Simple Social
                     </Typography>
@@ -141,7 +149,7 @@ function DrawerAppBar( {window, user, logout} ) {
                 justifyContent: "center",
                 width: "100%" }}>
                 <Toolbar />
-                <Home user={user} logout={logout} />
+                <Home user={user} logout={logout} filter={filter} filterType={filterType} setFilter={setFilter} setFilterType={setFilterType} />
             </Box>
         </Box>
     );

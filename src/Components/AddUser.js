@@ -38,7 +38,6 @@ function AddUser( { setUser, toggleNewUser } ) {
                 };
 
                 const loginResponse = await api.login(params);
-                console.log(loginResponse.data);
 
                 setUser(loginResponse.data);
 
@@ -59,7 +58,6 @@ function AddUser( { setUser, toggleNewUser } ) {
                 };
 
                 const registerUserResponse = await api.registerUser(params);
-                console.log(registerUserResponse.data);
 
                 if (registerUserResponse.data) {
                     login()
@@ -84,7 +82,6 @@ function AddUser( { setUser, toggleNewUser } ) {
                     const api = new API();
 
                     const userResponse = await api.user(username);
-                    console.log(userResponse.data)
 
                     if (userResponse.data[0]) {
                         setUsernameMessage("Username is already in use :(");

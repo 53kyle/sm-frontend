@@ -8,7 +8,7 @@ const AxiosConfigured = () => {
 
     // Set the baseURL for all requests to the API domain instead of the current domain
     // 18.216.192.141
-    axios.defaults.baseURL = `http://18.216.192.141:8000/`;
+    axios.defaults.baseURL = `http://127.0.0.1:8000/`;
 
     // Allow the browser to send cookies to the API domain (which include auth_token)
     axios.defaults.xsrfCookieName = 'csrftoken';
@@ -31,10 +31,6 @@ export default class APIInterface {
 
     async logout() {
         return axiosAgent.post(`logout/`);
-    }
-
-    async allUsers() {
-        return axiosAgent.get(`users/`);
     }
 
     async user(username) {
@@ -70,27 +66,15 @@ export default class APIInterface {
     }
 
     async post(post_id) {
-        return axiosAgent.post(`posts/${post_id}/`);
+        return axiosAgent.get(`posts/${post_id}/`);
+    }
+
+    async repliesToPost(post_id) {
+        return axiosAgent.get(`posts/${post_id}/replies/`);
     }
 
     async postsForUser(username) {
-        return axiosAgent.post(`users/${username}/posts/`);
-    }
-
-    async commentsOnPost(post_id) {
-        return axiosAgent.post(`posts/${post_id}/comments/`);
-    }
-
-    async addComment(post_id, params) {
-        return axiosAgent.post(`posts/${post_id}/comments/`, params);
-    }
-
-    async repliesOnComment(comment_id) {
-        return axiosAgent.post(`comments/${comment_id}/replies`);
-    }
-
-    async addReply(comment_id, params) {
-        return axiosAgent.post(`comments/${comment_id}/replies`, params);
+        return axiosAgent.get(`users/${username}/posts/`);
     }
 
     async postLikes(post_id) {
@@ -105,30 +89,6 @@ export default class APIInterface {
         return axiosAgent.post(`posts/${post_id}/likes/`, params);
     }
 
-    async commentLikes(comment_id) {
-        return axiosAgent.get(`comments/${comment_id}/likes/`);
-    }
-
-    async didLikeComment(comment_id, username) {
-        return axiosAgent.get(`comments/${comment_id}/likes/${username}/`);
-    }
-
-    async addCommentLike(comment_id, params) {
-        return axiosAgent.post(`comments/${comment_id}/likes/`, params);
-    }
-
-    async replyLikes(reply_id) {
-        return axiosAgent.get(`replies/${reply_id}/likes/`);
-    }
-
-    async didLikeReply(reply_id, username) {
-        return axiosAgent.get(`replies/${reply_id}/likes/${username}/`);
-    }
-
-    async addReplyLike(reply_id, params) {
-        return axiosAgent.post(`replies/${reply_id}/likes/`, params);
-    }
-
     async postDislikes(post_id) {
         return axiosAgent.get(`posts/${post_id}/dislikes/`);
     }
@@ -139,30 +99,6 @@ export default class APIInterface {
 
     async addPostDislike(post_id, params) {
         return axiosAgent.post(`posts/${post_id}/dislikes/`, params);
-    }
-
-    async commentDislikes(comment_id) {
-        return axiosAgent.get(`comments/${comment_id}/dislikes/`);
-    }
-
-    async didDislikeComment(comment_id, username) {
-        return axiosAgent.get(`comments/${comment_id}/dislikes/${username}/`);
-    }
-
-    async addCommentDislike(comment_id, params) {
-        return axiosAgent.post(`comments/${comment_id}/dislikes/`, params);
-    }
-
-    async replyDislikes(reply_id) {
-        return axiosAgent.get(`replies/${reply_id}/dislikes/`);
-    }
-
-    async didDislikeReply(reply_id, username) {
-        return axiosAgent.get(`replies/${reply_id}/dislikes/${username}/`);
-    }
-
-    async addReplyDislike(reply_id, params) {
-        return axiosAgent.post(`replies/${reply_id}/dislikes/`, params);
     }
 
     async searchForUser(search_term) {
