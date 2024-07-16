@@ -8,7 +8,7 @@ const AxiosConfigured = () => {
 
     // Set the baseURL for all requests to the API domain instead of the current domain
     // 18.216.192.141
-    axios.defaults.baseURL = `http://127.0.0.1:8000/`;
+    axios.defaults.baseURL = `http://18.216.192.141:8000/`;
 
     // Allow the browser to send cookies to the API domain (which include auth_token)
     axios.defaults.xsrfCookieName = 'csrftoken';
