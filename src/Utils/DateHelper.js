@@ -8,7 +8,7 @@ const millisecondsInWeek = 8.64e+7*7;
 const friendlyTimeFormat = (date) => {
     const dateAsDate = new Date(date);
 
-    return `${dateFormat(dateAsDate, "h:MM")}${Math.floor(dateAsDate/12) ? "pm" : "am"}`
+    return `${dateFormat(dateAsDate, "h:MM")}${Math.floor(dateAsDate.getHours()/12) ? "pm" : "am"}`
 }
 
 const shortDateFormat = (date) => {
