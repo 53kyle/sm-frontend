@@ -1,5 +1,5 @@
-import {Fragment, useEffect, useState} from "react";
-import {Box, Button, TextField, Typography} from "@mui/material";
+import { Fragment, useEffect, useState } from "react";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Typography } from "@mui/material";
 
 import API from "../API/APIInterface";
 
@@ -8,26 +8,93 @@ function AddUser( { setUser, toggleNewUser } ) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [bio, setBio] = useState("");
+    const [validUsername, setValidUsername] = useState(false);
     const [usernameMessage, setUsernameMessage] = useState("")
     const [usernameMessageColor, setUsernameMessageColor] = useState('green')
+    const [errorMessage, setErrorMessage] = useState("");
+    const [usernameError, setUsernameError] = useState(false);
+    const [passwordError, setPasswordError] = useState(false);
+    const [emailError, setEmailError] = useState(false);
+    const [bioError, setBioError] = useState(false);
+    const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
     const handleEmailChange = event => {
+        if (emailError) {
+            setEmailError(false);
+        }
         setEmail(event.target.value);
     };
 
     const handleUsernameChange = event => {
+        if (usernameError) {
+            setUsernameError(false);
+        }
         setUsername(event.target.value);
     };
 
     const handlePasswordChange = event => {
+        if (passwordError) {
+            setPasswordError(false);
+        }
         setPassword(event.target.value);
     };
 
     const handleBioChange = event => {
+        if (bioError) {
+            setBioError(false);
+        }
         setBio(event.target.value);
     };
 
+    const handleCloseErrorDialog = () => {
+        setErrorDialogOpen(false);
+        setErrorMessage("");
+    }
+
+    const validate = () => {
+        if (username === "") {
+            setUsernameError(true);
+            setErrorMessage("Username cannot be blank.")
+            return false;
+        }
+        else if (!validUsername) {
+            setUsernameError(true);
+            setErrorMessage(`${username} is already in use.`)
+            return false;
+        }
+        else if (username.indexOf(' ') >= 0) {
+            setUsernameError(true);
+            setErrorMessage("Username cannot contain spaces.")
+            return false;
+        }
+        else if (email === "") {
+            setEmailError(true);
+            setErrorMessage("Email cannot be blank.")
+            return false;
+        }
+        else if (email.indexOf(' ') >= 0) {
+            setEmailError(true);
+            setErrorMessage("Email cannot contain spaces.")
+            return false;
+        }
+        else if (bio.length > 140) {
+            setBioError(true);
+            setErrorMessage("Bio cannot be more than 140 characters.")
+            return false;
+        }
+        else if (password === "") {
+            setPasswordError(true);
+            setErrorMessage("Password cannot be blank.")
+            return false;
+        }
+        return true;
+    }
+
     const handleClickRegisterUser = () => {
+        if (!validate()) {
+            setErrorDialogOpen(true);
+            return;
+        }
         async function login() {
             try {
                 const api = new API();
@@ -86,10 +153,12 @@ function AddUser( { setUser, toggleNewUser } ) {
                     if (userResponse.data[0]) {
                         setUsernameMessage("Username is already in use :(");
                         setUsernameMessageColor("red");
+                        setValidUsername(false);
                     }
                     else {
                         setUsernameMessage("Username is available :)");
                         setUsernameMessageColor("green");
+                        setValidUsername(true)
                     }
                 }
                 else {
@@ -128,68 +197,105 @@ function AddUser( { setUser, toggleNewUser } ) {
                     <div style={{userSelect: "none", color: usernameMessageColor}}>{usernameMessage}</div>
                 </Typography>
                 <TextField
+                    error={ usernameError }
                     id="username-field-2"
                     label="Username"
                     placeholder=""
-                    value={username}
+                    value={ username }
                     helperText=""
-                    onChange={handleUsernameChange}
+                    onChange={ handleUsernameChange }
                     sx={{
                         mt: username.length > 0 ? 2 : 4.3
                     }}
                 />
                 <TextField
+                    error={ emailError }
                     id="email-field"
                     label="Email"
                     placeholder=""
-                    value={email}
+                    value={ email }
                     helperText=""
-                    onChange={handleEmailChange}
+                    onChange={ handleEmailChange }
                     sx={{
                         mt: 2
                     }}
                 />
                 <TextField
+                    error={ passwordError }
                     id="password-field-2"
                     type="password"
                     label="Password"
                     placeholder=""
-                    value={password}
+                    value={ password }
                     helperText=""
-                    onChange={handlePasswordChange}
+                    onChange={ handlePasswordChange }
                     sx={{
                         mt: 2
                     }}
                 />
                 <TextField
+                    error={ bioError }
                     id="bio-field"
                     multiline
                     label="Bio"
                     placeholder=""
-                    value={bio}
+                    value={ bio }
                     helperText=""
-                    onChange={handleBioChange}
+                    onChange={ handleBioChange }
                     sx={{
                         mt: 2
                     }}
                 />
+                <Typography variant="body" color={ bio.length <= 140 ? 'black' : 'red' } sx={{
+                    mt: 2
+                }} >
+                    { `${ 140 - bio.length } characters remaining.` }
+                </Typography>
                 <Button
                     variant="outlined"
                     size="medium"
-                    onClick={handleClickRegisterUser}
+                    onClick={ handleClickRegisterUser }
                     sx={{
                         mt: 2
                     }}
-                >Sign Up</Button>
+                >
+                    Sign Up
+                </Button>
                 <Button
                     variant="outlined"
                     size="medium"
-                    onClick={toggleNewUser}
+                    onClick={ toggleNewUser }
                     sx={{
                         mt: 2
                     }}
-                >Already Have an Account?</Button>
+                >
+                    Already Have an Account?
+                </Button>
             </Box>
+            <Dialog
+                open={ errorDialogOpen }
+                onClose={ handleCloseErrorDialog }
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {
+                        "Error"
+                    }
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        {
+                            errorMessage
+                        }
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={ handleCloseErrorDialog }>
+                        OK
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Fragment>
     );
 }

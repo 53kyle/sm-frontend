@@ -1,16 +1,25 @@
-import {Fragment, useState} from "react";
-import {Box, TextField, Typography} from "@mui/material";
-import Button from "@mui/material/Button";
+/*
+    AddPost is the interface for making new posts and replying to existing posts.
+
+    When replying to an existing post, the post the user is replying to is displayed in addition to the regular
+    interface elements.
+ */
+
+import { useState } from "react";
+import { Box, Button, TextField, Typography } from "@mui/material";
+import { v4 as uuidv4 } from 'uuid';
 
 import API from "../API/APIInterface";
-import DateHelper from "../Utils/DateHelper";
 import ReadOnlyPost from "./ReadOnlyPost";
 
-function AddPost( {user, handleCloseAddPost, replyTo} ) {
+function AddPost( { user, handleCloseAddPost, replyTo } ) {
+    // post contains the contents of the post.
     const [post, setPost] = useState("");
+    // canPost is false if the post is empty or too long.
     const [canPost, setCanPost] = useState(false);
 
     const handlePostChange = event => {
+        // Ensure that posts contain some text, and fall under 141 characters.
         if (event.target.value.length === 0 || event.target.value.length > 140) {
             setCanPost(false);
         }
@@ -24,9 +33,10 @@ function AddPost( {user, handleCloseAddPost, replyTo} ) {
         async function addPost() {
             try {
                 const api = new API();
-                const UUID = crypto.randomUUID();
-                const currentDate = new Date();
 
+                const UUID = uuidv4();
+
+                // If a post is not a reply, then reply_to should be null.
                 const params = replyTo ? {
                     "post_id": UUID,
                     "username": user['username'],
@@ -39,8 +49,7 @@ function AddPost( {user, handleCloseAddPost, replyTo} ) {
                     "reply_to": null
                 };
 
-                const addPostResponse = await api.addPost(params);
-
+                await api.addPost(params);
             } catch (error) {
                 console.error("Error adding post:", error);
             }
@@ -58,17 +67,17 @@ function AddPost( {user, handleCloseAddPost, replyTo} ) {
             alignItems: "center",
             justifyContent: "center",
             m: 1
-        }}>
+        }} >
             <Typography variant="h4" sx={{
                 mb: 3
-            }}>
+            }} >
                 {
                     replyTo ? `Reply` : "New Post"
                 }
             </Typography>
             {
                 replyTo &&
-                <ReadOnlyPost user={user} post={replyTo} />
+                <ReadOnlyPost user={ user } post={ replyTo } />
             }
             <TextField
                 id="post-field"
@@ -77,16 +86,15 @@ function AddPost( {user, handleCloseAddPost, replyTo} ) {
                 placeholder=""
                 value={post}
                 helperText=""
-                onChange={handlePostChange}
+                onChange={ handlePostChange }
                 sx={{
                     mt: 2,
                     width: "100%"
-                }}
-            />
-            <Typography variant="body" color={post.length <= 140 ? 'black' : 'red'} sx={{
+                }} />
+            <Typography variant="body" color={ post.length <= 140 ? 'black' : 'red' } sx={{
                 mt: 2
-            }}>
-                {`${140 - post.length} characters remaining.`}
+            }} >
+                { `${ 140 - post.length } characters remaining.` }
             </Typography>
             <Box sx={{
                 display: "flex",
@@ -94,24 +102,28 @@ function AddPost( {user, handleCloseAddPost, replyTo} ) {
                 alignItems: "center",
                 justifyContent: "center",
                 m: 2,
-            }}>
+            }} >
                 <Button
                     variant="outlined"
                     size="medium"
-                    onClick={handleCloseAddPost}
+                    onClick={ handleCloseAddPost }
                     sx={{
                         mr: 1
                     }}
-                >Cancel</Button>
+                >
+                    Cancel
+                </Button>
                 <Button
                     variant="outlined"
                     size="medium"
-                    onClick={handleClickPost}
-                    disabled={!canPost}
+                    onClick={ handleClickPost }
+                    disabled={ !canPost }
                     sx={{
                         ml: 1
                     }}
-                >Post</Button>
+                >
+                    Post
+                </Button>
             </Box>
         </Box>
     );

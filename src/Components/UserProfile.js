@@ -1,12 +1,19 @@
-import {Typography} from "@mui/material";
-import Divider from "@mui/material/Divider";
-import {Fragment, useEffect, useState} from "react";
+/*
+    UserProfile displays information about a given user, including their username and bio.
+
+    This would be expanded with further development to include things like profile pictures.
+ */
+
+import { Fragment, useEffect, useState } from "react";
+import { Button, Divider, Typography } from "@mui/material";
+
 import API from "../API/APIInterface";
-import Button from "@mui/material/Button";
 
 function UserProfile({ user, username }) {
     const [userProfile, setUserProfile] = useState(undefined);
     const [following, setFollowing] = useState(false);
+    // User has its own 'refresh' state variable so that when the user follows or unfollows another user its following
+    // status can be refreshed separately from refreshing posts.
     const [refresh, setRefresh] = useState(false);
 
     const handleClickFollow = () => {
@@ -19,7 +26,7 @@ function UserProfile({ user, username }) {
                     other_username: username
                 }
 
-                const userResponse = await api.addFollow(user['username'], params);
+                await api.addFollow(user['username'], params);
 
                 setRefresh(!refresh);
 
@@ -42,10 +49,10 @@ function UserProfile({ user, username }) {
 
                 const userResponse = await api.user(username);
 
-                if (user['username'] != username) {
+                // If the user being displayed is the logged-in user, we don't need or want a following status.
+                if (user['username'] !== username) {
                     const followingResponse = await api.doesFollow(user['username'], userResponse.data[0]['username'])
 
-                    console.log(followingResponse.data.length > 0)
                     setFollowing(followingResponse.data.length > 0)
                 }
 
@@ -81,11 +88,11 @@ function UserProfile({ user, username }) {
                 </Fragment>
             }
             {
-                user['username'] != username &&
+                user['username'] !== username &&
                 <Fragment>
-                    <Button variant={following ? "contained" : "outlined"} sx={{
+                    <Button variant={ following ? "contained" : "outlined" } sx={{
                         mb: 3
-                    }} onClick={handleClickFollow}>{following ? "Following" : "Follow"}</Button>
+                    }} onClick={ handleClickFollow }>{ following ? "Following" : "Follow" }</Button>
                 </Fragment>
             }
             <Divider sx={{

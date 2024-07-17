@@ -1,30 +1,20 @@
-import PropTypes from 'prop-types';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
-import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
+/*
+    SearchAppBar is the outermost user interface element, consisting of the top bar with logo and search bar.
+
+    Since SearchAppBar must persist at the top of the screen, Home is contained within SearchAppBar.
+ */
+
+import { Fragment, useEffect, useState } from "react";
+import { AppBar, Autocomplete, Box, Button, ButtonBase, CircularProgress, CssBaseline, InputBase, Toolbar, Typography } from "@mui/material"
+import { alpha, styled } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import LogoutIcon from "@mui/icons-material/Logout";
-import {alpha, styled} from "@mui/material/styles";
-import InputBase from "@mui/material/InputBase";
-import {Fragment, useEffect, useState} from "react";
-import ButtonBase from '@mui/material/ButtonBase';
 
-import Home from "./Home";
-import {Autocomplete, CircularProgress, Popover, TextField} from "@mui/material";
 import API from "../API/APIInterface";
+import Home from "./Home";
 
-const drawerWidth = 240;
-const navItems = ['Home', 'About', 'Contact'];
-
+// Search, SearchIconWrapper, and StyledInputBase are from the MUI documentation.
+// I couldn't imagine a better search bar implementation.
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
@@ -67,8 +57,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-function DrawerAppBar( {window, user, logout} ) {
-    const [mobileOpen, setMobileOpen] = useState(false);
+function SearchAppBar({ user, logout } ) {
     const [filter, setFilter] = useState(undefined);
     const [filterType, setFilterType] = useState("none");
     const [filterHistory, setFilterHistory] = useState([]);
@@ -76,12 +65,10 @@ function DrawerAppBar( {window, user, logout} ) {
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchOptions, setSearchOptions] = useState([]);
     const [userSearchTerm, setUserSearchTerm] = useState("");
+
     const loadingSearch = searchOptions && searchOptions.length === 0 && userSearchTerm !== "";
 
-    const handleDrawerToggle = () => {
-        setMobileOpen((prevState) => !prevState);
-    };
-
+    // Clicking on the logo takes the user to the home page and clears browsing history
     const handleClickLogo = () => {
         setFilter(undefined);
         setFilterType("none");
@@ -89,6 +76,8 @@ function DrawerAppBar( {window, user, logout} ) {
         setFilterTypeHistory([])
     }
 
+    // When the user clicks on a user, post, or reply indicator, the current page they're on is saved for breadcrumb
+    // navigation purposes
     const handlePushFilterHistory = () => {
         const filterHistoryClone = filterHistory.slice();
         const filterTypeHistoryClone = filterTypeHistory.slice();
@@ -96,13 +85,11 @@ function DrawerAppBar( {window, user, logout} ) {
         filterHistoryClone.push(filter);
         filterTypeHistoryClone.push(filterType);
 
-        console.log("filter history", filterHistoryClone)
-        console.log("filter type history", filterTypeHistoryClone)
-
         setFilterHistory(filterHistoryClone);
         setFilterTypeHistory(filterTypeHistoryClone);
     }
 
+    // When the user clicks on the "back" button, the previous page they were on is retrieved.
     const handlePopFilterHistory = () => {
         const filterHistoryClone = filterHistory.slice();
         const filterTypeHistoryClone = filterTypeHistory.slice();
@@ -114,9 +101,11 @@ function DrawerAppBar( {window, user, logout} ) {
         setFilterTypeHistory(filterTypeHistoryClone);
     }
 
+    // When the user makes any input in the search bar, retrieve search results from the backend.
     useEffect(() => {
         async function fetchUsers() {
-            if (userSearchTerm == "") {
+            // If search bar input is empty, there clearly won't be any matching users, so don't ping the backend.
+            if (userSearchTerm === "") {
                 setSearchOptions([]);
                 return;
             }
@@ -129,38 +118,19 @@ function DrawerAppBar( {window, user, logout} ) {
                 setSearchOptions(usersResponse.data)
 
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Error fetching users:", error);
             }
         }
 
         fetchUsers()
     }, [userSearchTerm]);
 
+    // When the user un-focuses the search bar, close the search dropdown.
     useEffect(() => {
         if (!searchOpen) {
             setSearchOptions([]);
         }
     }, [searchOpen]);
-
-    const drawer = (
-        <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-            <Typography variant="h6" sx={{ my: 2 }}>
-                MUI
-            </Typography>
-            <Divider />
-            <List>
-                {navItems.map((item) => (
-                    <ListItem key={item} disablePadding>
-                        <ListItemButton sx={{ textAlign: 'center' }}>
-                            <ListItemText primary={item} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
-        </Box>
-    );
-
-    const container = window !== undefined ? () => window().document.body : undefined;
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -173,7 +143,7 @@ function DrawerAppBar( {window, user, logout} ) {
                         flexDirection: "column",
                         alignItems: "start",
                         justifyContent: "center",
-                    }}>
+                    }} >
                         <ButtonBase disableRipple onClick={handleClickLogo}>
                             <Typography
                                 variant="h6"
@@ -200,7 +170,7 @@ function DrawerAppBar( {window, user, logout} ) {
                         loading={loadingSearch}
                         filterOptions={(x) => x}
                         onInputChange={(event, newInputValue) => {
-                            setUserSearchTerm(newInputValue.replace(/\s+/g, ''));
+                            setUserSearchTerm(newInputValue);
                         }}
                         onChange={(event, newValue) => {
                             if (newValue) {
@@ -223,9 +193,12 @@ function DrawerAppBar( {window, user, logout} ) {
                                             ...params.InputProps,
                                             endAdornment: (
                                                 <Fragment>
-                                                    {loadingSearch ?
-                                                        <CircularProgress color="inherit" size={20}/> : null}
-                                                    {params.InputProps.endAdornment}
+                                                    {
+                                                        loadingSearch ?
+                                                        <CircularProgress color="inherit" size={20}/>
+                                                            : null
+                                                    }
+                                                    { params.InputProps.endAdornment }
                                                 </Fragment>
                                             ),
                                         }}
@@ -234,46 +207,30 @@ function DrawerAppBar( {window, user, logout} ) {
                             </Search>
                         )}
                     />
-                    <Button variant="contained" startIcon={<LogoutIcon />} onClick={logout} sx={{ ml: 2 }} >
+                    <Button variant="contained" startIcon={ <LogoutIcon /> } onClick={ logout } sx={{ ml: 2 }} >
                         Log Out
                     </Button>
                 </Toolbar>
             </AppBar>
-            <nav>
-                <Drawer
-                    container={container}
-                    variant="temporary"
-                    open={mobileOpen}
-                    onClose={handleDrawerToggle}
-                    ModalProps={{
-                        keepMounted: true, // Better open performance on mobile.
-                    }}
-                    sx={{
-                        display: { xs: 'block', sm: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-                    }}
-                >
-                    {drawer}
-                </Drawer>
-            </nav>
             <Box component="main" sx={{ display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
                 width: "100%" }}>
                 <Toolbar />
-                <Home user={user} logout={logout} filter={filter} filterType={filterType} setFilter={setFilter} setFilterType={setFilterType} filterHistory={filterHistory} handlePushFilterHistory={handlePushFilterHistory} handlePopFilterHistory={handlePopFilterHistory} />
+                <Home
+                    user={ user }
+                    filter={ filter }
+                    filterType={ filterType }
+                    setFilter={ setFilter }
+                    setFilterType={ setFilterType }
+                    filterHistory={ filterHistory }
+                    handlePushFilterHistory={ handlePushFilterHistory }
+                    handlePopFilterHistory={ handlePopFilterHistory }
+                />
             </Box>
         </Box>
     );
 }
 
-DrawerAppBar.propTypes = {
-    /**
-     * Injected by the documentation to work in an iframe.
-     * You won't need it on your project.
-     */
-    window: PropTypes.func,
-};
-
-export default DrawerAppBar;
+export default SearchAppBar;
