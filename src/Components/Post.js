@@ -39,18 +39,16 @@ function Post({ post, topLevelRefresh, setReplyTo, user, setFilter, setFilterTyp
 
                 const didLikeResponse = await api.didLikePost(post['post_id'], user['username']);
 
-                setLiked(!!didLikeResponse.data[0])
-
                 const didDislikeResponse = await api.didDislikePost(post['post_id'], user['username']);
 
-                setDisliked(!!didDislikeResponse.data[0])
+                setLiked(!!didLikeResponse.data[0]);
+                setDisliked(!!didDislikeResponse.data[0]);
 
                 const likesResponse = await api.postLikes(post['post_id']);
 
-                setNumLiked(likesResponse.data);
-
                 const dislikesResponse = await api.postDislikes(post['post_id']);
 
+                setNumLiked(likesResponse.data);
                 setNumDisliked(dislikesResponse.data);
 
             } catch (error) {
