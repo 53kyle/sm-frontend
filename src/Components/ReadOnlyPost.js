@@ -4,18 +4,41 @@
  */
 
 import {useEffect, useState} from "react";
-import {Box, Typography} from "@mui/material";
+import {Box, CircularProgress, Typography} from "@mui/material";
 
 import ReplyIcon from '@mui/icons-material/Reply';
 
 import API from "../API/APIInterface";
 import DateHelper from "../Utils/DateHelper";
 import GetPastelFromString from "../Utils/ColorPicker";
+import GenericProfilePic from "../Generic-Profile-1600x1600.png";
 
 function ReadOnlyPost({ post }) {
     const [backgroundColor, setBackgroundColor] = useState("rgba(255, 255, 255, 1.0)");
     // parentPost corresponds to the post to which the current post is replying to, if any.
     const [parentPost, setParentPost] = useState(undefined);
+    const [profilePic, setProfilePic] = useState(undefined);
+    const [refreshingProfilePic, setRefreshingProfilePic] = useState(false);
+
+    useEffect(() => {
+        setRefreshingProfilePic(true);
+
+        async function getProfilePic() {
+            try {
+                const api = new API();
+
+                const profilePicResponse = await api.getProfilePic(post['username']);
+
+                setProfilePic(profilePicResponse.data);
+                setRefreshingProfilePic(false);
+
+            } catch (error) {
+                console.error("Error getting profile pic:", error);
+            }
+        }
+
+        getProfilePic()
+    }, [post]);
 
     useEffect(() => {
         setBackgroundColor(GetPastelFromString(post['username']));
@@ -89,15 +112,48 @@ function ReadOnlyPost({ post }) {
                         </Typography>
                     </Box>
                 }
-                <Typography variant="h6" sx={{
-                    mt: post['reply_to'] ? 0 : 2,
-                    ml: 2,
-                    mr: 2
-                }} >
+                <Box sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "start",
+                    width: "100%",
+                    ml: 1.5,
+                    mr: 1.5
+                }}>
                     {
-                        post['username']
+                        refreshingProfilePic ?
+                            <CircularProgress color="inherit" />
+                            :
+                            <div>
+                                <img
+                                    alt="not found"
+                                    width={"50px"}
+                                    height={"50px"}
+                                    style={{
+                                        width: 50,
+                                        height: 50,
+                                        marginTop: 10,
+                                        objectFit: "cover",
+                                        WebkitMaskImage: "radial-gradient(circle, black 50%, rgba(255, 255, 255, 0.0) 50%)",
+                                        maskImage: "radial-gradient(circle, black 50%, rgba(255, 255, 255, 0.0) 50%)",
+                                        maskSize: "160%",
+                                        maskPosition: "center"
+                                    }}
+                                    src={profilePic && profilePic.length > 0 ? profilePic[0]['image'] : GenericProfilePic}
+                                />
+                            </div>
                     }
-                </Typography>
+                    <Typography variant="h6" sx={{
+                        mt: 0.75,
+                        ml: 1,
+                        wordWrap: "break-word"
+                    }} >
+                        {
+                            post['username']
+                        }
+                    </Typography>
+                </Box>
             </Box>
             <Typography variant="body" sx={{
                 ml: 2,

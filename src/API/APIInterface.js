@@ -152,4 +152,20 @@ export default class APIInterface {
     async searchForPost(search_term) {
         return axiosAgent.get(`search/posts/${search_term}/`);
     }
+
+    async getProfilePic(username) {
+        return axiosAgent.get(`users/${username}/profile-pic/`, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+    }
+
+    async changeProfilePic(username, params) {
+        return axiosAgent.post(`users/${username}/profile-pic/`, params, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+    }
 }
