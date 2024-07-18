@@ -2,6 +2,8 @@
 
 This app is a simplified example of a social media website. Based on the original concept of Twitter, posts are limited to 140 characters, and users can only post text - no photos. 
 
+Accessible from: http://sm-frontend.s3-website.us-east-2.amazonaws.com
+
 ## Implemented Features
 
 - Create an account with email, username, password, and an optional bio.
