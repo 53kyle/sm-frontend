@@ -69,6 +69,8 @@ function Login( { setUser, toggleNewUser } ) {
 
             } catch (error) {
                 console.error("Error logging in:", error);
+                setErrorMessage("Incorrect username or password.")
+                setErrorDialogOpen(true);
             }
         }
 
