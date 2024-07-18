@@ -123,7 +123,12 @@ function ReadOnlyPost({ post }) {
                 }}>
                     {
                         refreshingProfilePic ?
-                            <CircularProgress color="inherit" />
+                            <CircularProgress color="inherit" sx={{
+                                mt: 1.5,
+                                ml: 0.5,
+                                mr: 0.5,
+                                mb: 1.5
+                            }}/>
                             :
                             <div>
                                 <img
