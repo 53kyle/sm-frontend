@@ -1,8 +1,10 @@
-# Simple Social
+# Simple Social Frontend
 
 This app is a simplified example of a social media website. Based on the original concept of Twitter, posts are limited to 140 characters, and users can only post text - no photos. 
 
 Accessible from: http://sm-frontend.s3-website.us-east-2.amazonaws.com
+
+Simple Social uses ReactJS for its frontend. In production, this is hosted via an AWS S3 bucket.
 
 ## Implemented Features
 
@@ -24,6 +26,7 @@ Accessible from: http://sm-frontend.s3-website.us-east-2.amazonaws.com
 - A button to take the user directly to their own profile.
   - Currently, users can visit their own profile by searching for their own username, or clicking on one of their own posts.
 - Editing bios after user creation.
+- Searching for posts containing a given search term.
 
 ## Known Issues
 - Cookies aren't working properly, so the user is logged out upon reloading the page.
