@@ -1,6 +1,6 @@
 # Simple Social Frontend
 
-Backend: https://github.com/53kyle/sm-backend
+Backend: https://github.com/53kyle/sm-backend-pub
 
 This app is a simplified example of a social media website. Based on the original concept of Twitter, posts are limited to 140 characters, and users can only post text - no photos. 
 
