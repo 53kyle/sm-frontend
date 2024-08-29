@@ -5,6 +5,8 @@ Backend: https://github.com/53kyle/sm-backend
 This app is a simplified example of a social media website. Based on the original concept of Twitter, posts are limited to 140 characters, and users can only post text - no photos. 
 
 Accessible from: http://sm-frontend.s3-website.us-east-2.amazonaws.com
+* The backend is currently offline.
+* Demo video: https://www.youtube.com/watch?v=kFtzp_srtAg
 
 Simple Social uses ReactJS for its frontend. In production, this is hosted via an AWS S3 bucket.
 
